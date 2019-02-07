@@ -34,6 +34,7 @@ import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.ImageButton;
+import android.widget.LinearLayout;
 import android.widget.Toast;
 
 import com.example.camera2apitest.R;
@@ -44,9 +45,12 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.ByteBuffer;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
+import java.util.Random;
 import java.util.UUID;
 
 public class MainActivity extends AppCompatActivity {
@@ -55,6 +59,7 @@ public class MainActivity extends AppCompatActivity {
     private static int DSI_height = 0;
     private static int DSI_width = 0;
 
+    private Button btnSwitch;
     private Button btnCapture;
     private TextureView textureView;
 
@@ -138,7 +143,7 @@ public class MainActivity extends AppCompatActivity {
                 jpegSizes = characteristics.get(CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP)
                         .getOutputSizes(ImageFormat.JPEG);
 
-            //Capture image with custom size
+            // Capture image with custom size
             int width = 640;
             int height = 480;
             if (jpegSizes != null && jpegSizes.length>0) {
@@ -158,7 +163,17 @@ public class MainActivity extends AppCompatActivity {
             int rotation = getWindowManager().getDefaultDisplay().getRotation();
             captureBuilder.set(CaptureRequest.JPEG_ORIENTATION, ORIENTATIONS.get(rotation));
 
-            file = new File(Environment.getExternalStorageDirectory()+"/"+UUID.randomUUID().toString()+".jpg");
+            // Set save name & path
+            File saveDir = new File(Environment.getExternalStorageDirectory().getAbsolutePath() + "/shareSticker");
+            saveDir.mkdirs();
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+            String date = sdf.format(new Date());
+
+            Random r = new Random();
+            int min=1, max=100000000;
+            int rand = r.nextInt((max - min) + 1 + min);
+            file = new File(saveDir+"/"+date+"-"+ rand+".jpg");
+
             ImageReader.OnImageAvailableListener readerListener = new ImageReader.OnImageAvailableListener() {
                 @Override
                 public void onImageAvailable(ImageReader imageReader) {
@@ -177,10 +192,8 @@ public class MainActivity extends AppCompatActivity {
                         e.printStackTrace();
                     }
                     finally {
-                        {
-                            if (image != null)
-                                image.close();
-                        }
+                        if (image != null)
+                            image.close();
                     }
                 }
                 private void save(byte[] bytes) throws IOException {
@@ -324,7 +337,6 @@ public class MainActivity extends AppCompatActivity {
 
         @Override
         public void onSurfaceTextureSizeChanged(SurfaceTexture surfaceTexture, int i, int i1) {
-
         }
 
         @Override
@@ -334,7 +346,6 @@ public class MainActivity extends AppCompatActivity {
 
         @Override
         public void onSurfaceTextureUpdated(SurfaceTexture surfaceTexture) {
-
         }
     };
 
