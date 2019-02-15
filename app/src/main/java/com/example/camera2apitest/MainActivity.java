@@ -1,7 +1,10 @@
 package com.example.camera2apitest;
 
 import android.Manifest;
+import android.app.Dialog;
 import android.content.Context;
+import android.content.DialogInterface;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.ImageFormat;
 import android.graphics.SurfaceTexture;
@@ -20,6 +23,7 @@ import android.os.Environment;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.support.annotation.NonNull;
+import android.support.constraint.ConstraintLayout;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -27,17 +31,18 @@ import android.util.DisplayMetrics;
 import android.util.Log;
 import android.util.Size;
 import android.util.SparseIntArray;
+import android.view.Gravity;
 import android.view.Surface;
 import android.view.TextureView;
 import android.view.View;
+import android.view.ViewGroup;
+import android.view.Window;
 import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.FrameLayout;
-import android.widget.ImageButton;
-import android.widget.LinearLayout;
+import android.widget.Switch;
+import android.widget.TextView;
 import android.widget.Toast;
-
-import com.example.camera2apitest.R;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -51,17 +56,16 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.Random;
-import java.util.UUID;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity  {  //implements CompoundButton.OnCheckedChangeListener
 
     private static final String TAG = "TAG";
     private static int DSI_height = 0;
     private static int DSI_width = 0;
 
-    private Button btnSwitch;
     private Button btnCapture;
     private TextureView textureView;
+    private Button btnCamSetting;
 
     // Call another function - Singleton pattern
     public static Context mContext;
@@ -76,6 +80,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private String cameraId;
+
     private CameraDevice cameraDevice;
     private CameraCaptureSession cameraCaptureSessions;
     private CaptureRequest.Builder captureRequestBuilder;
@@ -127,6 +132,21 @@ public class MainActivity extends AppCompatActivity {
                 takePicture();
             }
         });
+
+        // Camera Setting Dialog
+        btnCamSetting = (Button) findViewById(R.id.btnCamSetting);
+
+        btnCamSetting.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+//                Intent i = new Intent(getApplicationContext(), CamSetDialog.class);
+//                startActivity(i);
+                openDialog();
+            }
+        });
+
+        //
+//        textureView textureView2 =
 
         // Call another function - Singleton pattern
         mContext = this;
@@ -393,6 +413,58 @@ public class MainActivity extends AppCompatActivity {
         mBackgroundHandler = new Handler(mBackgroundThread.getLooper());
     }
 
+    private void openDialog() {
+
+        final CamSetDialog camSetDialog = new CamSetDialog(this);
+        camSetDialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
+        camSetDialog.getWindow().requestFeature(Window.FEATURE_NO_TITLE);
+//        camSetDialog.setContentView(R.layout.dialog_cam_set);
+        camSetDialog.setTitle("Title...");
+        camSetDialog.getWindow().clearFlags(WindowManager.LayoutParams.FLAG_DIM_BEHIND);
+        camSetDialog.setCanceledOnTouchOutside(true);
+
+        Window window = camSetDialog.getWindow();
+        WindowManager.LayoutParams params = window.getAttributes();
+        window.setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        window.setGravity(Gravity.TOP);
+        params.y = 200;   //y position
+//        params.width = 300; // Width
+//        params.height = 300; // Height
+        params.alpha = 0.9f; // Transparency
+
+        window.setAttributes(params);
+
+        // set the custom dialog components - text, image and button
+        ConstraintLayout setBtn = (ConstraintLayout) camSetDialog.findViewById(R.id.setBtn);
+
+        Button btnFlash = (Button) camSetDialog.findViewById(R.id.btnFlash);
+        Button btnRatio = (Button) camSetDialog.findViewById(R.id.btnRatio);
+        Button btnTimer = (Button) camSetDialog.findViewById(R.id.btnTimer);
+        Button btnSetting = (Button) camSetDialog.findViewById(R.id.btnSetting);
+
+        View hr = (View) camSetDialog.findViewById(R.id.hr);
+
+        Switch SwitchAutoSave = (Switch) camSetDialog.findViewById(R.id.SwitchAutoSave);
+        Switch SwitchTouchCapture = (Switch) camSetDialog.findViewById(R.id.SwitchTouchCapture);
+        Switch SwitchHD = (Switch) camSetDialog.findViewById(R.id.SwitchHD);
+
+        camSetDialog.show();
+
+//        btnFlash.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//                camSetDialog.dismiss();
+//            }
+//        });
+
+//        camSetDialog.setOnDismissListener(new DialogInterface.OnDismissListener() {
+//            @Override
+//            public void onDismiss(DialogInterface dialogInterface) {
+//
+//            }
+//    }
+    }
 
 }
+
 
